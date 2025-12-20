@@ -2,7 +2,9 @@ name: Build, Push and Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
+      - feature/**
 
 jobs:
   build_push_deploy:
@@ -41,6 +43,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/stefanini-todo-back:${{ github.sha }}
 
       - name: Deploy on EC2 (docker compose pull + up)
+        if: github.ref == 'refs/heads/main'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
