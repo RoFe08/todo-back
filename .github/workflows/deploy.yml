@@ -1,4 +1,4 @@
-name: Build, Push and Deploy
+name: Build, Push and Deploy (SSM)
 
 on:
   push:
@@ -6,9 +6,16 @@ on:
       - main
       - feature/**
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  build_and_push:
+  build_push_deploy:
     runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: stefanini-todo-back
 
     steps:
       - name: Checkout
@@ -39,26 +46,27 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/stefanini-todo-back:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/stefanini-todo-back:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  deploy_via_ssm:
-    needs: build_and_push
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Configure AWS credentials
+      # =========================
+      # Deploy via AWS SSM (main)
+      # =========================
+      - name: Configure AWS credentials (OIDC)
+        if: github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
       - name: Deploy using SSM Run Command
+        if: github.ref == 'refs/heads/main'
         run: |
           aws ssm send-command \
             --document-name "${{ secrets.SSM_DOCUMENT_NAME }}" \
             --targets "Key=instanceids,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --comment "Deploy backend via docker compose" \
             --parameters "AppDir=${{ secrets.EC2_APP_DIR }}" \
-            --comment "Deploy stefanini backend from GitHub Actions - $GITHUB_SHA" \
-            --timeout-seconds 600
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "0"
