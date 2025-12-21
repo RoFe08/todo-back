@@ -14,11 +14,7 @@ import jakarta.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class TaskJpaEntity {
-
-    @Id
-    @Column(nullable = false)
-    private UUID id;
+public class TaskJpaEntity extends BaseJpaEntity {
 
     @Column(nullable = false, length = 255)
     private String title;
@@ -30,6 +26,4 @@ public class TaskJpaEntity {
     @Column(nullable = false, length = 30)
     private TaskStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
 }
