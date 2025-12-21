@@ -1,8 +1,8 @@
 package com.exemplo.stefanini.todo.adapter.in.web;
 
-import com.exemplo.stefanini.todo.adapter.in.web.dto.CreateTaskRequest;
-import com.exemplo.stefanini.todo.adapter.in.web.dto.TaskResponse;
-import com.exemplo.stefanini.todo.adapter.in.web.dto.UpdateTaskRequest;
+import com.exemplo.stefanini.todo.adapter.in.web.dto.task.CreateTaskRequest;
+import com.exemplo.stefanini.todo.adapter.in.web.dto.task.TaskResponse;
+import com.exemplo.stefanini.todo.adapter.in.web.dto.task.UpdateTaskRequest;
 import com.exemplo.stefanini.todo.adapter.in.web.mapper.TaskResponseMapper;
 import com.exemplo.stefanini.todo.adapter.in.web.mapper.TaskWebMapper;
 import com.exemplo.stefanini.todo.application.port.in.*;

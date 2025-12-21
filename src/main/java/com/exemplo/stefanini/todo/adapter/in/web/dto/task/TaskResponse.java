@@ -1,4 +1,4 @@
-package com.exemplo.stefanini.todo.adapter.in.web.dto;
+package com.exemplo.stefanini.todo.adapter.in.web.dto.task;
 
 import com.exemplo.stefanini.todo.domain.model.TaskStatus;
 import lombok.AllArgsConstructor;

@@ -26,24 +26,6 @@ services:
     networks:
       - todo-net
 
-  backend:
-    image: rofe08/todo-backend:latest   # depois você troca pro nome do seu DockerHub
-    container_name: todo-backend
-    depends_on:
-      sqlserver:
-        condition: service_healthy
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=sqlserver
-      - DB_PORT=1433
-      - DB_NAME=todo_db
-      - DB_USERNAME=sa
-      - DB_PASSWORD=${MSSQL_SA_PASSWORD}
-    ports:
-      - "8080:8080"
-    networks:
-      - todo-net
-
 volumes:
   sqlserver_data:
 

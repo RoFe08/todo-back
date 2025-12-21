@@ -1,7 +1,7 @@
 package com.exemplo.stefanini.todo.adapter.in.web.mapper;
 
-import com.exemplo.stefanini.todo.adapter.in.web.dto.CreateTaskRequest;
-import com.exemplo.stefanini.todo.adapter.in.web.dto.UpdateTaskRequest;
+import com.exemplo.stefanini.todo.adapter.in.web.dto.task.CreateTaskRequest;
+import com.exemplo.stefanini.todo.adapter.in.web.dto.task.UpdateTaskRequest;
 import com.exemplo.stefanini.todo.application.port.in.dto.CreateTaskCommand;
 import com.exemplo.stefanini.todo.application.port.in.dto.UpdateTaskCommand;
 import org.mapstruct.Mapper;
