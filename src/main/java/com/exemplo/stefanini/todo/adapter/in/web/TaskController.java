@@ -5,16 +5,26 @@ import com.exemplo.stefanini.todo.adapter.in.web.dto.task.TaskResponse;
 import com.exemplo.stefanini.todo.adapter.in.web.dto.task.UpdateTaskRequest;
 import com.exemplo.stefanini.todo.adapter.in.web.mapper.TaskResponseMapper;
 import com.exemplo.stefanini.todo.adapter.in.web.mapper.TaskWebMapper;
-import com.exemplo.stefanini.todo.application.port.in.*;
+import com.exemplo.stefanini.todo.application.port.in.CreateTaskUseCase;
+import com.exemplo.stefanini.todo.application.port.in.DeleteTaskByIdUseCase;
+import com.exemplo.stefanini.todo.application.port.in.GetTaskByIdUseCase;
+import com.exemplo.stefanini.todo.application.port.in.ListTaskUseCase;
+import com.exemplo.stefanini.todo.application.port.in.UpdateTaskUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +44,10 @@ public class TaskController {
     private final TaskWebMapper taskWebMapper;
     private final TaskResponseMapper taskResponseMapper;
 
+    private UUID userIdFrom(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
+    }
+
     @Operation(summary = "Create a new task")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Task created successfully"),
@@ -42,59 +56,61 @@ public class TaskController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TaskResponse create(
+            @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody CreateTaskRequest request
     ) {
-        return taskResponseMapper.toResponse(
-                createTaskUseCase.execute(
-                        taskWebMapper.toCommand(request)
-                )
-        );
+        UUID userId = UUID.fromString(jwt.getSubject());
+        var task = createTaskUseCase.execute(userId, taskWebMapper.toCommand(request));
+        return taskResponseMapper.toResponse(task);
     }
 
-    @Operation(summary = "List all tasks")
+    @Operation(summary = "List tasks for current user")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
     @GetMapping
-    public List<TaskResponse> listAll() {
+    public List<TaskResponse> listAll(@AuthenticationPrincipal Jwt jwt) {
+        UUID userId = userIdFrom(jwt);
+
         return taskResponseMapper.toResponseList(
-                listTaskUseCase.execute()
+                listTaskUseCase.execute(userId)
         );
     }
 
-    @Operation(summary = "Get task by id")
+    @Operation(summary = "Get task by id (only if belongs to current user)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task found"),
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @GetMapping("/{id}")
     public TaskResponse getById(
+            @AuthenticationPrincipal Jwt jwt,
             @Parameter(description = "Task ID", required = true)
             @PathVariable UUID id
     ) {
+        UUID userId = userIdFrom(jwt);
+
         return taskResponseMapper.toResponse(
-                getTaskByIdUseCase.execute(id)
+                getTaskByIdUseCase.execute(userId, id)
         );
     }
 
-    @Operation(summary = "Update an existing task")
+    @Operation(summary = "Update an existing task (only if belongs to current user)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task updated"),
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @PutMapping("/{id}")
-    public TaskResponse update(
-            @Parameter(description = "Task ID", required = true)
+    public ResponseEntity<TaskResponse> update(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID id,
-            @RequestBody UpdateTaskRequest request
+            @Valid @RequestBody UpdateTaskRequest request
     ) {
-        return taskResponseMapper.toResponse(
-                updateTaskUseCase.execute(
-                        id,
-                        taskWebMapper.toCommand(request)
-                )
-        );
+        UUID userId = userIdFrom(jwt);
+
+        var task = updateTaskUseCase.execute(userId, id, taskWebMapper.toCommand(request));
+        return ResponseEntity.ok(taskResponseMapper.toResponse(task));
     }
 
-    @Operation(summary = "Delete task by id")
+    @Operation(summary = "Delete task by id (only if belongs to current user)")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Task deleted"),
             @ApiResponse(responseCode = "404", description = "Task not found")
@@ -102,9 +118,11 @@ public class TaskController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
+            @AuthenticationPrincipal Jwt jwt,
             @Parameter(description = "Task ID", required = true)
             @PathVariable UUID id
     ) {
-        deleteTaskByIdUseCase.execute(id);
+        UUID userId = userIdFrom(jwt);
+        deleteTaskByIdUseCase.execute(userId, id);
     }
 }

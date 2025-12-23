@@ -1,9 +1,9 @@
 package com.exemplo.stefanini.todo.adapter.out.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "app_user")
@@ -22,4 +22,7 @@ public class UserJpaEntity extends BaseJpaEntity {
 
     @Column(nullable = false)
     private String passwordHash;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<TaskJpaEntity> tasks;
 }

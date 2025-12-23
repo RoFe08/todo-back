@@ -6,6 +6,7 @@ import com.exemplo.stefanini.todo.domain.model.Task;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public class ListTaskService implements ListTaskUseCase {
@@ -13,8 +14,8 @@ public class ListTaskService implements ListTaskUseCase {
     private final TaskRepositoryPort taskRepositoryPort;
 
     @Override
-    public List<Task> execute() {
-        return taskRepositoryPort.findAll();
+    public List<Task> execute(UUID userId) {
+        return taskRepositoryPort.findAll(userId);
     }
 
 }

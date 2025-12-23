@@ -8,13 +8,14 @@ import java.util.UUID;
 
 public interface TaskRepositoryPort {
 
-    Task save(Task task);
+    Task save(UUID userId, Task task);
 
-    Optional<Task> findById(UUID id);
+    Optional<Task> findById(UUID userId, UUID taskId);
 
-    List<Task> findAll();
+    List<Task> findAll(UUID userId);
 
-    boolean existsById(UUID id);
+    boolean existsById(UUID userId, UUID taskId);
 
-    void deleteById(UUID id);
+    void deleteById(UUID userId, UUID taskId);
 }
+

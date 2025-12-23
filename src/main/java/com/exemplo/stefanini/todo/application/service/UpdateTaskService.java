@@ -15,14 +15,22 @@ public class UpdateTaskService implements UpdateTaskUseCase {
     private final TaskRepositoryPort taskRepositoryPort;
 
     @Override
-    public Task execute(UUID id, UpdateTaskCommand command) {
-        Task task = taskRepositoryPort.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public Task execute(UUID userId, UUID taskId, UpdateTaskCommand command) {
 
-        if (command.getTitle() != null) task.setTitle(command.getTitle());
-        if (command.getDescription() != null) task.setDescription(command.getDescription());
-        if (command.getStatus() != null) task.setStatus(command.getStatus());
+        Task task = taskRepositoryPort.findById(userId, taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
 
-        return taskRepositoryPort.save(task);
+        if (command.getTitle() != null) {
+            task.setTitle(command.getTitle());
+        }
+        if (command.getDescription() != null) {
+            task.setDescription(command.getDescription());
+        }
+        if (command.getStatus() != null) {
+            task.setStatus(command.getStatus());
+        }
+
+        return taskRepositoryPort.save(userId, task);
     }
 
 }
