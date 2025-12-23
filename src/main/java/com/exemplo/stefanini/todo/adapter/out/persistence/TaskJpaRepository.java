@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface SpringDataTaskRepository extends JpaRepository<TaskJpaEntity, UUID> {
+public interface TaskJpaRepository extends JpaRepository<TaskJpaEntity, UUID> {
     Optional<TaskJpaEntity> findByIdAndUser_Id(UUID id, UUID userId);
     List<TaskJpaEntity> findAllByUser_Id(UUID userId);
 }

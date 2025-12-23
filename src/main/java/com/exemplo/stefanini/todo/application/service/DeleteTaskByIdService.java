@@ -13,10 +13,10 @@ public class DeleteTaskByIdService implements DeleteTaskByIdUseCase {
     private final TaskRepositoryPort taskRepositoryPort;
 
     @Override
-    public void execute(UUID id) {
-        if (!taskRepositoryPort.existsById(id)) {
-            throw new TaskNotFoundException(id);
+    public void execute(UUID userId, UUID taskId) {
+        if (!taskRepositoryPort.existsById(userId, taskId)) {
+            throw new TaskNotFoundException(taskId);
         }
-        taskRepositoryPort.deleteById(id);
+        taskRepositoryPort.deleteById(userId, taskId);
     }
 }

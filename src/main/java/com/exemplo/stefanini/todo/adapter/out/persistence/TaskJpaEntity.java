@@ -26,4 +26,7 @@ public class TaskJpaEntity extends BaseJpaEntity {
     @Column(nullable = false, length = 30)
     private TaskStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserJpaEntity user;
 }

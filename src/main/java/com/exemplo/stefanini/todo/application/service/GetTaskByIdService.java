@@ -11,11 +11,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class GetTaskByIdService implements GetTaskByIdUseCase {
 
-    private final TaskRepositoryPort repository;
+    private final TaskRepositoryPort taskRepositoryPort;
 
     @Override
-    public Task execute(UUID id) {
-        return repository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public Task execute(UUID userId, UUID taskId) {
+        return taskRepositoryPort.findById(userId, taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 
 }
